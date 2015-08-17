@@ -42,7 +42,7 @@ namespace librsyncTest
             }
         }
 
-        public byte[] MakeRandomFile()
+        public static byte[] MakeRandomFile()
         {
             int len = r.Next(1000000);
             byte[] result = new byte[len];

@@ -113,7 +113,7 @@ namespace librsync.net
         }
     }
 
-    internal struct SignatureJobSettings
+    public struct SignatureJobSettings
     {
         public MagicNumber MagicNumber;
         public int BlockLength;

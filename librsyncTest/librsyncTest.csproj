@@ -53,6 +53,7 @@
     <Compile Include="PatchingTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoundTripTest.cs" />
+    <Compile Include="SignatureStreamTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\librsync.net\librsync.net.csproj">

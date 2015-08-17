@@ -11,13 +11,19 @@ namespace librsync.net
     {
         public static Stream ComputeSignature(Stream inputFile)
         {
-            return new SignatureStream(inputFile,
+            return ComputeSignature(
+                inputFile,
                 new SignatureJobSettings
                 {
                     MagicNumber = MagicNumber.Blake2Signature,
                     BlockLength = SignatureHelpers.DefaultBlockLength,
                     StrongSumLength = SignatureHelpers.DefaultStrongSumLength
                 });
+        }
+        
+        public static Stream ComputeSignature(Stream inputFile, SignatureJobSettings settings)
+        {
+            return new SignatureStream(inputFile, settings);
         }
 
         public static Stream ComputeDelta(Stream signature, Stream newFile)
