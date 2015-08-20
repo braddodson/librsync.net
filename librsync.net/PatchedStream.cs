@@ -19,6 +19,8 @@ namespace librsync.net
     /// </summary>
     internal class PatchedStream : Stream
     {
+        private long outputPosition = 0;
+        private List<CommandPosition> commandSummary;
         private Stream input;
         private Stream delta;
         private BinaryReader deltaReader;
@@ -35,6 +37,12 @@ namespace librsync.net
             this.deltaReader = new BinaryReader(this.delta);
             // read and check the header
             PatchedStream.ReadHeader(this.deltaReader);
+
+            // Read in all of the commands from the delta to build a table which will tell us the length of the
+            // resulting stream, as well as tell us how to seek into the file
+            var currentPosition = this.delta.Position;
+            this.commandSummary = ReadCommandSummary(this.delta);
+            this.delta.Seek(currentPosition, SeekOrigin.Begin);
 
             // starting the current helper with 0 bytes left will force us to immediately read a new command
             this.currentCopyHelper = new StreamCopyHelper(0, input);
@@ -57,7 +65,9 @@ namespace librsync.net
             }
 
             // now read the data based on the copy helper 
-            return await this.currentCopyHelper.ReadAsync(buffer, offset, count, cancellationToken);
+            int bytesRead = await this.currentCopyHelper.ReadAsync(buffer, offset, count, cancellationToken);
+            this.outputPosition += bytesRead;
+            return bytesRead;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -90,13 +100,12 @@ namespace librsync.net
             get { return false; }
         }
 
-        // TODO: it should be possible to compute the length of the patched stream without generating it
-        // based on adding up the length of every command. It should be possible to seek by this method too.
         public override long Length
         {
             get
             {
-                throw new NotImplementedException();
+                // if we add the length of all the commands, that will be the length of the output file
+                return this.commandSummary.Sum(c => c.Command.Length);
             }
         }
 
@@ -104,21 +113,54 @@ namespace librsync.net
         {
             get
             {
-                throw new NotImplementedException();
+                return this.outputPosition;
             }
 
             set
             {
-                throw new NotImplementedException();
+                this.Seek(value, SeekOrigin.Begin);
             }
+        }
+        
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            long newPosition = StreamHelpers.ComputeNewPosition(offset, origin, this.Length, this.Position);
+
+            // search until we find the command just before this position
+            long runningTotal = 0;
+            int i;
+            for (i = 0; i < this.commandSummary.Count; i++)
+            {
+                // if this is the first command that takes us past the desired position
+                long newTotal = runningTotal + this.commandSummary[i].Command.Length;
+                if (newTotal > newPosition)
+                {
+                    break;
+                }
+
+                runningTotal = newTotal;
+            }
+
+            if (i == this.commandSummary.Count)
+            {
+                throw new ArgumentException("The specified offset is past the end of the stream");
+            }
+
+            // seek to the point that that command starts
+            this.delta.Seek(this.commandSummary[i].DeltaStartPosition, SeekOrigin.Begin);
+
+            // now read that command in
+            var command = ReadCommand(this.deltaReader);
+            // construct a copy helper to run that command
+            this.currentCopyHelper = ConstructCopyHelperForCommand(command, this.input, this.delta);
+            // finally seek into the copy helper for whatever bytes are left over
+            this.currentCopyHelper.SeekForward(newPosition - runningTotal);
+
+            this.outputPosition = newPosition;
+            return newPosition;
         }
 
         public override void Flush()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
         {
             throw new NotImplementedException();
         }
@@ -164,6 +206,12 @@ namespace librsync.net
                 int bytesActuallyRead = await this.source.ReadAsync(buffer, offset, bytesToRead, cancellationToken);
                 bytesLeft -= bytesActuallyRead;
                 return bytesActuallyRead;
+            }
+
+            public void SeekForward(long bytes)
+            {
+                this.source.Seek(bytes, SeekOrigin.Current);
+                this.bytesLeft -= bytes;
             }
         }
 
@@ -229,6 +277,31 @@ namespace librsync.net
             }
         }
 
+        private static List<CommandPosition> ReadCommandSummary(Stream inputStream)
+        {
+            var result = new List<CommandPosition>();
+            var inputReader = new BinaryReader(inputStream);
+            bool finished = false;
+            while (!finished)
+            {
+                long position = inputStream.Position;
+                var c = ReadCommand(inputReader);
+                result.Add(new CommandPosition { Command = c, DeltaStartPosition = position });
+               
+                if (c.Kind == CommandKind.Literal)
+                {
+                    // if it's a literal, we have to jump over the bytes
+                    inputStream.Seek(c.Length, SeekOrigin.Current);
+                }
+                else if (c.Kind == CommandKind.End)
+                {
+                    finished = true;
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Table of commands with ids from 65 to 84
         /// (unlike librsync, I didn't expand the immediate literals)
@@ -288,5 +361,33 @@ namespace librsync.net
         public CommandKind Kind;
         public long Parameter1;
         public long Parameter2;
+
+        public long Length
+        {
+            get
+            {
+                if (this.Kind == CommandKind.Literal)
+                {
+                    return this.Parameter1;
+                }
+                else if (this.Kind == CommandKind.Copy)
+                {
+                    return this.Parameter2;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Represents the location of a command within the patched stream
+    /// </summary>
+    public struct CommandPosition
+    {
+        public Command Command;
+        public long DeltaStartPosition;
     }
 }

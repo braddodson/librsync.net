@@ -99,21 +99,7 @@ namespace librsync.net
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            long newPosition;
-            switch (origin)
-            {
-                case SeekOrigin.Begin:
-                    newPosition = offset;
-                    break;
-                case SeekOrigin.Current:
-                    newPosition = this.Position + offset;
-                    break;
-                case SeekOrigin.End:
-                    newPosition = this.Length + offset;
-                    break;
-                default:
-                    throw new ArgumentException("Invalid SeekOrigin");
-            }
+            long newPosition = StreamHelpers.ComputeNewPosition(offset, origin, this.Length, this.Position);
 
             if (newPosition < SignatureStream.HeaderLength)
             {

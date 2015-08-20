@@ -38,5 +38,26 @@ namespace librsync.net
 
             return result;
         }
+
+        public static long ComputeNewPosition(long offset, SeekOrigin origin, long length, long currentPosition)
+        {
+            long newPosition;
+            switch (origin)
+            {
+                case SeekOrigin.Begin:
+                    newPosition = offset;
+                    break;
+                case SeekOrigin.Current:
+                    newPosition = currentPosition + offset;
+                    break;
+                case SeekOrigin.End:
+                    newPosition = length + offset;
+                    break;
+                default:
+                    throw new ArgumentException("Invalid SeekOrigin");
+            }
+
+            return newPosition;
+        }
     }
 }
