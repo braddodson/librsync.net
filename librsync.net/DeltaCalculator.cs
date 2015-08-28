@@ -30,7 +30,7 @@ namespace librsync.net
                     }
 
                     // literals from 1..64 have a command code equal to the length
-                    s.Write(command.Literal.Count);
+                    s.Write((byte)command.Literal.Count);
                 }
                 else
                 {
