@@ -210,7 +210,7 @@ namespace rdiff.net.exe
         
         private static string Usage =
 @"SYNONPSIS:
-    Uses the librsync.net library to generate rsync signatures, create file deltas from signatures, and patch files with diffs.
+    Uses librsync.net to generate rsync signatures, create file deltas, and patch files with deltas.
 
 USAGE: 
     Generate a signature from a given file and save it to disk:
@@ -232,6 +232,5 @@ USAGE:
         --output, -o    - path where output will be saved
         --original, -v1 - path to the original file
         --new, v2       - path to the changed file";
-
     }
 }
