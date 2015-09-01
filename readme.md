@@ -44,3 +44,8 @@ of the input file. If that rolling checksum matches one of the blocks of the ori
 blocks also match, then the algorithm outputs a command to copy that block into the result stream. Otherwise, the algorithm outputs
 the next byte of the file, and makes another attempt with the input block shifted over by one. In this way, the algorithm is able
 to reuse every block of the original file which still exists in the updated version.
+
+Format Specifications
+---------------------
+
+[Delta Format](./deltaformat.md)
