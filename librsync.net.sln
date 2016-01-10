@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "librsync.net", "librsync.net\librsync.net.csproj", "{0B6D94BD-5BFE-49AE-A83D-C504FB504C4C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "librsyncTest", "librsyncTest\librsyncTest.csproj", "{44941F98-A1D9-4A65-AC05-E482FF26E9E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rdiff.net", "rdiff.net.exe\rdiff.net.csproj", "{9C8E4671-9350-4955-8E52-1517EC7A0843}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rdiff.netTest", "rDiff.NetTest\rdiff.netTest.csproj", "{ACB4F794-0C3B-421A-8218-9D3E71D76F2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{44941F98-A1D9-4A65-AC05-E482FF26E9E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44941F98-A1D9-4A65-AC05-E482FF26E9E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44941F98-A1D9-4A65-AC05-E482FF26E9E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C8E4671-9350-4955-8E52-1517EC7A0843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C8E4671-9350-4955-8E52-1517EC7A0843}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C8E4671-9350-4955-8E52-1517EC7A0843}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C8E4671-9350-4955-8E52-1517EC7A0843}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACB4F794-0C3B-421A-8218-9D3E71D76F2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACB4F794-0C3B-421A-8218-9D3E71D76F2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACB4F794-0C3B-421A-8218-9D3E71D76F2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACB4F794-0C3B-421A-8218-9D3E71D76F2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
